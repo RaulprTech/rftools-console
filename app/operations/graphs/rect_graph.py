@@ -2,18 +2,20 @@ from matplotlib import scale
 import numpy as np
 import matplotlib.pyplot as plt
 
-diccionario = {'dato0': 3+2j, 'dato1': 3+4j, 'dato2': 1+2j}   # for test
+# diccionario = {'dato0': 3+2j, 'dato1': 3+4j, 'dato2': 1+2j}   # for test
 
 
 def rectangular_graph(source):
     A = []
-    A = diccionario.values()
+    # A = diccionario.values()
+    A = source
+    print(f"A = Source = {A}")
     b = np.array([complex(x) for x in A])
     print("")
     print(b)
     fig, ax = plt.subplots()
     ax.scatter(b.real, b.imag)
-    ax.axis([-250, 250, -250, 250])
+    ax.axis([-1, 1, -1, 1])
 
     # Grafica de ejes
     ax.spines['left'].set_position('center')
@@ -26,4 +28,5 @@ def rectangular_graph(source):
 
 
 if __name__ == '__main__':
-    rectangular_graph(diccionario)
+    # rectangular_graph(diccionario)
+    pass

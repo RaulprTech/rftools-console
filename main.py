@@ -1,4 +1,5 @@
 import glob
+import numpy as np
 
 ################################        Modules             ################################
 #   import and read documents
@@ -14,7 +15,9 @@ from app.operations.param_converter import converter
 #   graphs
 from app.operations.graphs.rect_graph import rectangular_graph
 from app.operations.graphs.polar_graph import polar_graph
+from app.operations.graphs.smith import smith_chart
 from app.operations.graphs.smith_graph import Smith
+
 
 
 lines = []
@@ -29,25 +32,59 @@ def select_file():
 
 def params_for_graph(route, structure):
     frecs = []
+    param_graphs = []
     parameters_list = decode(route)
-    print("Estos son los parametros disponibles para graficar")
-    for parameter in parameters_list:
-        line_params = structure(parameter)
+    # print("Estos son los parametros disponibles para graficar")
+    select = input("¿Quieres algun parametro por separado? [s/n] ")
+    if select == "n":
+        for parameter in parameters_list:
+            line_params = structure(parameter)
+            # print(line_params)
+            param_graphs.append(line_params[1])
+            param_graphs.append(line_params[2])
+            param_graphs.append(line_params[3])
+            param_graphs.append(line_params[4])
+            frecs.append(line_params[0])
+            # print(param_graphs)
+        return param_graphs
+    elif select == 's':
+        selected_param = input("¿Que parametro quieres graficar? ['s1, s2, s3, s4']")
+        for parameter in parameters_list:
+            line_params = structure(parameter)
+            # print(line_params)
+            selected_param=='s1' and param_graphs.append(line_params[1])
+            selected_param=='s2' and param_graphs.append(line_params[2])
+            selected_param=='s3' and param_graphs.append(line_params[3])
+            selected_param=='s4' and param_graphs.append(line_params[4])
         frecs.append(line_params[0])
-    print(frecs)
-    frec_graph = input("Escribe la frecuencia de los parametros que deseas graficar: ")
-    for parameter in parameters_list:
-        line_params = structure(parameter)
-        if(frec_graph == line_params[0]):
-            return line_params
-
-    print("Lo siento no fueron medidos parametros en esa frecuencia")
-    reset = input("Deseas intentar con otro valor [s/n] ")
-    if reset == 's':
-        params_for_graph()
+        # print(param_graphs)
+        return param_graphs
     else:
-        print("Adios")
+        print("No valido. Adios")
 
+    # print(frecs)
+    # frec_graph = input("Escribe la frecuencia de los parametros que deseas graficar: ")
+    # for parameter in parameters_list:
+    #     line_params = structure(parameter)
+    #     if(frec_graph == line_params[0]):
+    #         return line_params
+
+    # print("Lo siento no fueron medidos parametros en esa frecuencia")
+    # reset = input("Deseas intentar con otro valor [s/n] ")
+    # if reset == 's':
+    #     params_for_graph()
+    # else:
+    #     print("Adios")
+
+def reductor(multilista):
+
+    return [elemento
+
+        for una_sublista in multilista
+
+            for elemento in una_sublista
+
+        ]
 
 def plot_menu(mode, route_file):
     if mode == '1':
@@ -64,15 +101,45 @@ def plot_menu(mode, route_file):
         print("Preparando para graficar en forma Polar ...")
         polar_graph(p)
     elif plot_type == '3':
-        print("Preparando para graficar en forma de Carta de Smith ...")
-        smith = Smith()
-        smith.markZ(p[1], text='Z1')
-        smith.markZ(p[2], text='Z2')
-        smith.markZ(p[3], text='Z3')
-        smith.markZ(p[4], text='Z4')
+        if mode == 2:
+            print("Preparando para graficar en forma de Carta de Smith ...")
+            smith_chart(p)
+            # smith = Smith()
+            # j = 1
+            # for i in p:
+            #     market = "Z" + str(j)
+            #     smith.markZ(i, text=market)
+            #     print("graficando")
+            #     smith.show()
+            #     j += 1
+        elif mode == '1':
+            print("Los parametros S deben ser convertidos a Z")
+            s_params = []
+            for k in range(1, len(p), 4):
+                m = [[p[k], p[k+1]], [p[k+2], p[k+3]]]
+                s_params.append(m)
+            print(s_params)
+            z_params=[]
+            for l in s_params:
+                z = converter('s', 'z', l)
+                z_params.append(list(z))
+            b = reductor(z_params)
+            print(b)
+            # b = np.array([complex(x) for x in z_params])
+            print("Preparando para graficar en forma de Carta de Smith ...")
+            smith_chart(b)
+            # smith = Smith()
+            # j = 1
+            # for i in b:
+            #     market = "Z" + str(j)
+            #     smith.markZ(complex(i), text=market)
+            #     print(f"Graficando Z{str(j)}")
+            #     j += 1
+            # smith.show()
+                
+
         # smith.drawZList([0, 50j, 10000j, -50j, 0])
-        print("graficando")
-        smith.show()
+
     else: 
         print("*******************************************************************************")
         print("Creo que te confundiste, intentemos de nuevo ")
