@@ -272,13 +272,13 @@ def abcd_to_s(params):
 #   S a Z (ready)
 
 def s_to_z(params):
-
-    delta = delta_param(params)
+    # print(f"params = {params}" )
     det = ((1-params[0][0])*(1-params[1][1])-((params[0][1])*(params[1][0])))
-    i11 = z0*((1+params[0][0])*(1-params[1][1])+((params[0][1])*(params[1][0])))/det
-    i12 = z0*2*(params[0][1])/det
-    i21 = z0*2*(params[1][0])/det
-    i22 = z0*((1-params[0][0])*(1+params[1][1])+((params[0][1])*(params[1][0])))/det
+    # print(det)
+    i11 = (z0*((1+params[0][0])*(1-params[1][1])+((params[0][1])*(params[1][0]))))/det
+    i12 = (z0*2*(params[0][1]))/det
+    i21 = (z0*2*(params[1][0]))/det
+    i22 = (z0*((1-params[0][0])*(1+params[1][1])+((params[0][1])*(params[1][0]))))/det
     array_params = (
         str(i11),
         str(i12),

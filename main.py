@@ -1,11 +1,12 @@
 import glob
 import numpy as np
+from numpy.lib.type_check import imag
 
 ################################        Modules             ################################
 #   import and read documents
 from app.doc_process.decoder_s2p import decoder_s2p as decode
 from app.doc_process.decoder_s2p import params_complex_destructure as fracc
-from app.doc_process.decoder_s2p import params_complex_destructure_output as fracc_out
+from app.doc_process.decoder_s2p import params_complex_destructure_output as fracc_equal
 
 #   export documents
 from app.doc_process.doc_out import doc_out
@@ -34,12 +35,13 @@ def params_for_graph(route, structure):
     frecs = []
     param_graphs = []
     parameters_list = decode(route)
+    # print(f"parameter_list {parameters_list}")
     # print("Estos son los parametros disponibles para graficar")
     select = input("¿Quieres algun parametro por separado? [s/n] ")
     if select == "n":
         for parameter in parameters_list:
             line_params = structure(parameter)
-            # print(line_params)
+            #print(line_params)
             param_graphs.append(line_params[1])
             param_graphs.append(line_params[2])
             param_graphs.append(line_params[3])
@@ -48,6 +50,7 @@ def params_for_graph(route, structure):
             # print(param_graphs)
         return param_graphs
     elif select == 's':
+        # print(parameters_list)
         selected_param = input("¿Que parametro quieres graficar? ['s1, s2, s3, s4']")
         for parameter in parameters_list:
             line_params = structure(parameter)
@@ -86,13 +89,13 @@ def reductor(multilista):
 
         ]
 
-def plot_menu(mode, route_file):
+def plot_menu(mode, route_file=""):
     if mode == '1':
         print("¡Genial Empecemos!")
-        route_file = select_file()
-        p = params_for_graph(route_file, fracc)
+        route_file_new = select_file()
+        p = params_for_graph(route_file_new, fracc)
     elif mode == '2':
-        p = params_for_graph(route_file, fracc_out)
+        p = params_for_graph(route_file, fracc)
     plot_type = input("¿Como quieres graficar? [1 = Rectangular, 2 = Polar, 3 = Carta de Smith] ")
     if plot_type == '1':
         print("Preparando para graficar en forma Rectangular ...")
@@ -101,41 +104,59 @@ def plot_menu(mode, route_file):
         print("Preparando para graficar en forma Polar ...")
         polar_graph(p)
     elif plot_type == '3':
-        if mode == 2:
+        if mode == '2':
             print("Preparando para graficar en forma de Carta de Smith ...")
+            # pars = decode(route_file)
+            # p = fracc_equal(pars)
+        
             smith_chart(p)
+            # s_params = []
+            # for k in range(1, len(p), 4):
+            #     m = [[p[k], p[k+1]], [p[k+2], p[k+3]]]
+            #     s_params.append(m)
+            # # print(s_params)
+            # z_params=[]
+            # for l in s_params:
+            #     z = converter('s', 'z', l)
+            #     z_params.append(list(z))
+            # b = reductor(z_params)
+            # # print(b)
+            # b = np.array([complex(x) for x in z_params])
+
+            # print("Preparando para graficar en forma de Carta de Smith ...")
             # smith = Smith()
             # j = 1
             # for i in p:
             #     market = "Z" + str(j)
-            #     smith.markZ(i, text=market)
-            #     print("graficando")
-            #     smith.show()
+            #     smith.markZ(complex(i), text=market)
+            #     print(f"Graficando Z{str(j)}")
             #     j += 1
+            # smith.show()
+                
         elif mode == '1':
             print("Los parametros S deben ser convertidos a Z")
             s_params = []
             for k in range(1, len(p), 4):
                 m = [[p[k], p[k+1]], [p[k+2], p[k+3]]]
                 s_params.append(m)
-            print(s_params)
+            # print(s_params)
             z_params=[]
             for l in s_params:
                 z = converter('s', 'z', l)
                 z_params.append(list(z))
             b = reductor(z_params)
-            print(b)
-            # b = np.array([complex(x) for x in z_params])
+            # print(b)
+            b = np.array([complex(x) for x in z_params])
             print("Preparando para graficar en forma de Carta de Smith ...")
-            smith_chart(b)
-            # smith = Smith()
-            # j = 1
-            # for i in b:
-            #     market = "Z" + str(j)
-            #     smith.markZ(complex(i), text=market)
-            #     print(f"Graficando Z{str(j)}")
-            #     j += 1
-            # smith.show()
+            # smith_chart(b)
+            smith = Smith()
+            j = 1
+            for i in b:
+                market = "Z" + str(j)
+                smith.markZ(complex(i), text=market)
+                print(f"Graficando Z{str(j)}")
+                j += 1
+            smith.show()
                 
 
         # smith.drawZList([0, 50j, 10000j, -50j, 0])
@@ -165,16 +186,47 @@ def converter_menu():
     salida = input(f"¿En que tipo de parametro quieres que se convierta? (z, y, abcd, s o t) ")
 
     lines.append(f"!Nueva Lista de parametros {salida.upper()} \n")
-    lines.append("# frec param1 param2  param3  param4 \n")
+    # lines.append("# frec param1 param2  param3  param4 \n")
+    lines.append("# Hz Z RI R 50 \n")
 
     for parameter in parameters_list:
         line_params = fracc(parameter)
         # print(params) 
         array_params = [[line_params[1], line_params[2]], [line_params[3], line_params[4]]]
         results =  converter(entrada, salida, array_params)
-        lines.append(line_params[0] + " \t")
-        lines.append(str(results).replace("(", "\t").replace(")", "").replace(",", "\t").replace("\'", ""))
+        p1 = np.array(complex(results[0]))
+        p2 = np.array(complex(results[1]))
+        p3 = np.array(complex(results[2]))
+        p4 = np.array(complex(results[3]))
+        p1_real = str(p1.real)
+        p1_imag = str(p1.imag)
+        p2_real = str(p2.real)
+        p2_imag = str(p2.imag)
+        p3_real = str(p3.real)
+        p3_imag = str(p3.imag)
+        p4_real = str(p4.real)
+        p4_imag = str(p4.imag)
+        lines.append(f"{line_params[0]}")
+        lines.append(f"\t")
+        lines.append(f"{p1_real}")
+        lines.append(f"\t")
+        lines.append(f"{p1_imag}")
+        lines.append(f"\t")
+        lines.append(f"{p2_real}")
+        lines.append(f"\t")
+        lines.append(f"{p2_imag}")
+        lines.append(f"\t")
+        lines.append(f"{p3_real}")
+        lines.append(f"\t")
+        lines.append(f"{p3_imag}")
+        lines.append(f"\t")
+        lines.append(f"{p4_real}")
+        lines.append(f"\t")
+        lines.append(f"{p4_imag}")
         lines.append("\n")
+        # print(lines)
+        # lines.append(str(results).replace("(", "\t").replace(")", "").replace(",", "\t").replace("\'", ""))
+        # lines.append("\n")
     name_route_out = route.replace("./input/", "./output/")
     doc_out(name_route_out, lines)
     print("El archivo de resultados ya esta disponible en la carpeta output")

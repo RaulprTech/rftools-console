@@ -1,4 +1,5 @@
 
+
 def decoder_s2p(route):
     parametros = []
     archivo = open(route, "rt", encoding="utf8")
@@ -9,16 +10,19 @@ def decoder_s2p(route):
         letras = first[0]
 
     lineas = archivo.readlines()
+    # print(f"lineas {lineas}")
     for linea in lineas:
-        parametros.append(linea.replace("\n", "").replace("\t", "").split(" "))
+        parametros.append(linea.replace("\n", "").replace("\t", " ").split(" "))
+        # print(parametros)
     
     archivo.close()
-
     return parametros
 
 # param 2 y 3 estan inversos en el archivo, por lo que aqui se corrige
 def params_complex_destructure(parameters_list):
+    # print(f"parameter_list {parameters_list}")
     frec = parameters_list[0]
+    
     param1 = complex(parameters_list[1]) + complex(parameters_list[2] + "j")
     param3 = complex(parameters_list[3]) + complex(parameters_list[4] + "j")
     param2 = complex(parameters_list[5]) + complex(parameters_list[6] + "j")
@@ -27,12 +31,20 @@ def params_complex_destructure(parameters_list):
 
 # param 2 y 3 estan inversos en el archivo, por lo que aqui se corrige
 def params_complex_destructure_output(parameters_list):
-    frec = parameters_list[0]
-    param1 = complex(parameters_list[1])
-    param3 = complex(parameters_list[2])
-    param2 = complex(parameters_list[3])
-    param4 = complex(parameters_list[4])
-    return frec, param1, param2, param3, param4
+    params =[]        
+    for p in parameters_list:
+        p.pop(0)
+        params += p
+    
+    param_float = [float(x) for x in params]
+    # frec = parameters_list[0]
+    # param1 = float(parameters_list[1])
+    # param3 = float(parameters_list[2])
+    # param2 = float(parameters_list[3])
+    # param4 = float(parameters_list[4])
+    # param_float = [float(x) for x in parameters_list]
+
+    return param_float
 
 
 if __name__ == '__main__':

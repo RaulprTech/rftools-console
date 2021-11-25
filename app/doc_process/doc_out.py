@@ -1,3 +1,5 @@
+
+
 def doc_out(route, text):
     parametros = []
     archivo = open(route, "wt", encoding="utf8")
